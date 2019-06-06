@@ -49,6 +49,7 @@ void xLineChartView::addLineSeries(QLineSeries *series)
 	if (NULL == series) return;
 
 	m_chart->addSeries(series);
+	m_chart->createDefaultAxes();
 	connect(series, SIGNAL(clicked(QPointF)), this, SLOT(keepCallout()));
 	connect(series, SIGNAL(hovered(QPointF, bool)), this, SLOT(tooltip(QPointF, bool)));
 }
