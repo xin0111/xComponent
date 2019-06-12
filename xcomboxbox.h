@@ -6,11 +6,11 @@
 
 class QLineEdit;
 
-class xCheckCombox : public QComboBox
+class xComboxBox : public QComboBox
 {
 	Q_OBJECT
 public:
-	xCheckCombox(QWidget *parent = NULL);
+	xComboxBox(QWidget *parent = NULL);
 	
 	void addCheckableItem(const QString &text, const QVariant &userData = QVariant());
 
@@ -29,6 +29,8 @@ private:
 	void updateIndexStatus(int index);
 
 	void combineCurrentText();
+
+	void adjustViewWidth();
 private:
 	QStandardItem *m_ItemRoot;
 	QLineEdit* m_pLineEdit;

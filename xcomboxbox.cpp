@@ -3,11 +3,13 @@
 #include <qabstractitemview.h>  
 #include <QStandardItemModel>
 #include <QLineEdit>
+#include <QScrollBar>
 
-#include "xcheckcombox.h"  
+#include "xcomboxbox.h"  
 
 
-xCheckCombox::xCheckCombox(QWidget *parent) : QComboBox(parent),
+
+xComboxBox::xComboxBox(QWidget *parent) : QComboBox(parent),
 m_ItemRoot(nullptr),
 m_bAutoUnchecked(true)
 {
@@ -25,7 +27,7 @@ m_bAutoUnchecked(true)
 	});
 }
 
-void xCheckCombox::addCheckableItem(const QString &text, const QVariant &userData /*= QVariant()*/)
+void xComboxBox::addCheckableItem(const QString &text, const QVariant &userData /*= QVariant()*/)
 {
 	QComboBox::addItem(text, userData);
 
@@ -35,7 +37,7 @@ void xCheckCombox::addCheckableItem(const QString &text, const QVariant &userDat
 	}
 }
 
-void xCheckCombox::updateIndexStatus(int index)
+void xComboxBox::updateIndexStatus(int index)
 {
 	Qt::CheckState state = (Qt::CheckState)itemData(index, Qt::CheckStateRole).toInt();
 	
@@ -54,8 +56,9 @@ void xCheckCombox::updateIndexStatus(int index)
 
 }
 
-void xCheckCombox::mousePressEvent(QMouseEvent *e)
+void xComboxBox::mousePressEvent(QMouseEvent *e)
 {
+	adjustViewWidth();
 	int x = e->pos().x();
 	int iconWidth = iconSize().width();
 	if (x <= iconWidth)
@@ -69,7 +72,7 @@ void xCheckCombox::mousePressEvent(QMouseEvent *e)
 	}
 }
 
-void xCheckCombox::hidePopup()
+void xComboxBox::hidePopup()
 {
 	int iconWidth = iconSize().width();
 	int x = QCursor::pos().x() - mapToGlobal(geometry().topLeft()).x() + geometry().x();
@@ -84,12 +87,12 @@ void xCheckCombox::hidePopup()
 	}
 }
 
-void xCheckCombox::setAutoUnchecked(bool bAuto)
+void xComboxBox::setAutoUnchecked(bool bAuto)
 {
 	m_bAutoUnchecked = bAuto;
 }
 
-void xCheckCombox::combineCurrentText()
+void xComboxBox::combineCurrentText()
 {
 	bool canUncheck = false;
 	if (m_ItemRoot)
@@ -126,7 +129,7 @@ void xCheckCombox::combineCurrentText()
 	m_pLineEdit->setText(showText);
 }
 
-QVector<int> xCheckCombox::getCheckedIndexs()
+QVector<int> xComboxBox::getCheckedIndexs()
 {
 	QVector<int> checkedIndexs;
 	for (int i = 0; i < count(); ++i)
@@ -141,9 +144,26 @@ QVector<int> xCheckCombox::getCheckedIndexs()
 	return checkedIndexs;
 }
 
-QVariant xCheckCombox::getUserData(int index)
+QVariant xComboxBox::getUserData(int index)
 {
 	return itemData(index, Qt::UserRole);
+}
+
+void xComboxBox::adjustViewWidth()
+{
+	int nCol = this->count();
+	int nMaxLen = 0, nItemWidth = 0;
+	QFontMetrics fm(this->view()->font());
+	for (int idx = 0; idx < nCol; ++idx)
+	{
+		QString text = this->itemText(idx);
+		nItemWidth = fm.width(this->itemText(idx));
+		nMaxLen = std::max(nMaxLen, nItemWidth);
+	}
+
+	nMaxLen += this->view()->verticalScrollBar()->depth();
+	
+	this->view()->setMinimumWidth(nMaxLen);
 }
 
 
