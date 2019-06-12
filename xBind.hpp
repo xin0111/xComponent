@@ -1,9 +1,9 @@
 #ifndef XBIND_H__
 #define XBIND_H__
 
-// BOOST_FORCEINLINE ---------------------------------------------//
+// XBIND_FORCEINLINE ---------------------------------------------//
 // Macro to use in place of 'inline' to force a function to be inline
-#if !defined(BOOST_FORCEINLINE)
+#if !defined(XBIND_FORCEINLINE)
 #  if defined(_MSC_VER)
 #    define XBIND_FORCEINLINE __forceinline
 #  elif defined(__GNUC__) && __GNUC__ > 3
@@ -188,7 +188,7 @@ public:
 	A1 operator[] (arg<1>) const {
 		return base_type::a1_;
 	}
-	//´«µÄÖµµ÷ÓÃÕâ¸ö
+	//ä¼ çš„å€¼è°ƒç”¨è¿™ä¸ª
 	template<class T> T & operator[] (value<T> & v) const {
 		return v.get();
 	}
@@ -204,14 +204,14 @@ private:
 
 public:
 	explicit list2(A1 a1, A2 a2) : base_type(a1, a2) { }
-	//´«µÄÕ¼Î»·ûµ÷ÓÃÕâ¸ö
+	//ä¼ çš„å ä½ç¬¦è°ƒç”¨è¿™ä¸ª
 	A1 operator[] (arg<1>) const {
 		return base_type::a1_;
 	}
 	A2 operator[] (arg<2>) const {
 		return base_type::a2_;
 	}
-	//´«µÄÖµµ÷ÓÃÕâ¸ö
+	//ä¼ çš„å€¼è°ƒç”¨è¿™ä¸ª
 	template<class T> T & operator[] (value<T> & v) const {
 		return v.get();
 	}
@@ -345,7 +345,7 @@ template<class A1, class A2> struct list_av_2 {
 	typedef list2<B1, B2> type;
 };
 
-//·Âº¯Êı 
+//ä»¿å‡½æ•° 
 
 template<class R, class F> bind_t<R, F, list0> bind(F f) {
 	typedef list0 list_type;
@@ -366,7 +366,7 @@ bind(F f, A1 a1, A2 a2) {
 	return bind_t<R, F, list_type>(f, list_type(a1, a2));
 }
 
-//º¯ÊıÖ¸Õë
+//å‡½æ•°æŒ‡é’ˆ
 template<class R>
 bind_t<R, R(*) (), list0>
 bind(R(*f) ()) {
@@ -391,7 +391,7 @@ bind(R(*f) (B1, B2), A1 a1, A2 a2) {
 	return bind_t<R, F, list_type>(f, list_type(a1, a2));
 }
 
-//Àà³ÉÔ±º¯Êı
+//ç±»æˆå‘˜å‡½æ•°
 template<class R, class T, class A1>
 bind_t<R, mf0<R, T>, typename list_av_1<A1>::type >
 bind(R(T::*f) (), A1 a1) {
