@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/mIconTimerContinue.png</file>
+        <file>images/mIconTimerPause.png</file>
+        <file>images/mIconClose.svg</file>
+        <file>images/mIconCritical.png</file>
+        <file>images/mIconInfo.png</file>
+        <file>images/mIconSuccess.png</file>
+        <file>images/mIconWarning.svg</file>
+    </qresource>
+</RCC>
