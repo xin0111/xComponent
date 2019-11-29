@@ -42,22 +42,29 @@ xValidator::~xValidator()
 int getNumberInt(double d)
 {
 	if (d > 0)
-		return floor(d);//·µ»ØÐ¡ÓÚ»òµÈÓÚÖ¸¶¨Êý×ÖµÄ×î´óÕûÊý
+		return floor(d);//è¿”å›žå°äºŽæˆ–ç­‰äºŽæŒ‡å®šæ•°å­—çš„æœ€å¤§æ•´æ•°
 
-	return ceil(d); // ·µ»Ø´óÓÚ»òµÈÓÚÖ¸¶¨Êý×ÖµÄ×îÐ¡ÕûÊý¡£ 
+	return ceil(d); // è¿”å›žå¤§äºŽæˆ–ç­‰äºŽæŒ‡å®šæ•°å­—çš„æœ€å°æ•´æ•°ã€‚ 
 }
 
-QValidator::State xValidator::validate(QString & input, int &) const
+QValidator::State xValidator::validate(QString & input, int &pos) const
 {
-	auto bottom = xValidator::INT_FLAG ?
-		m_bottom.toInt() : m_bottom.toDouble();
-	auto top = xValidator::INT_FLAG ?
-		m_top.toInt() : m_top.toDouble();
+	double bottom = m_bottom.toDouble();
+	double top = m_top.toDouble();
 
-	//·ûºÅ
+	//ç¬¦å·
 	if (input.isEmpty())
 		return QValidator::Intermediate;
 
+	if(input.size()>=pos)
+	{
+	    //ç©ºæ ¼å¤„ç†
+	    QChar word = input.at(pos-1);
+		if(word.isSpace())
+		{
+			retrun QValidator::Invalid;
+		}
+	}
 	if (bottom >= 0 && input.startsWith('-'))
 		return	invalidTip();
 
@@ -68,7 +75,7 @@ QValidator::State xValidator::validate(QString & input, int &) const
 		&& input.length() == 1)
 		return QValidator::Intermediate;
 
-	//Ð¡ÊýÎ»Êý
+	//å°æ•°ä½æ•°
 	if (input.indexOf(".") != -1)
 	{
 		if (xValidator::INT_FLAG == m_flag)
@@ -79,12 +86,12 @@ QValidator::State xValidator::validate(QString & input, int &) const
 			return	invalidTip();
 	}
 
-	//Êý×Ö
+	//æ•°å­—
 	bool ok = false;
 	double i = input.toDouble(&ok); 
 	if (!ok)
 		return	invalidTip();
-	// ÊýÖµ´óÐ¡
+	// æ•°å€¼å¤§å°
 	//+
 	if (top > 0 && (i > top || (bottom <0 && i<bottom)))
 		return	invalidTip();
