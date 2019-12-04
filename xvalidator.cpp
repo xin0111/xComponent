@@ -56,7 +56,7 @@ QValidator::State xValidator::validate(QString & input, int &pos) const
 	if (input.isEmpty())
 		return QValidator::Intermediate;
 
-	if(input.size()>=pos)
+	if(pos>0 && input.size()>=pos)
 	{
 	    //空格处理
 	    QChar word = input.at(pos-1);
