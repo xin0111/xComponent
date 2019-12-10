@@ -7,7 +7,9 @@
 xValidator::xValidator(int bottom, int top, QLineEdit *lineEdit)
 : QValidator(lineEdit),
 m_dec(0),
-m_flag(INT_FLAG)
+m_flag(INT_FLAG),
+m_bBottomClose(true),
+m_bTopClose(true)
 {
 	m_bottom = bottom;
 	m_top = top;
@@ -18,19 +20,55 @@ m_flag(INT_FLAG)
 			.arg(m_top.toInt()));
 	}
 }
-
-xValidator::xValidator(double bottom, double top, int decimals, QLineEdit *lineEdit)
-: QValidator(lineEdit),
-m_flag(DOUBLE_FLAG)
+xValidator::xValidator(int bottom, int top, bool bBottomClose, bool bTopClose, QLineEdit *lineEdit)
 {
 	m_bottom = bottom;
 	m_top = top;
-	m_dec = decimals;	
+	m_bBottomClose = bBottomClose;
+	m_bTopClose = bTopClose;
+	if (lineEdit)
+	{
+		lineEdit->setToolTip(QString::fromLocal8Bit("%1%2,%3%4,int")
+			.arg(m_bBottomClose ? "[":"(")
+			.arg(m_bottom.toInt())
+			.arg(m_top.toInt())
+			.arg(m_bTopClose ? "]" : ")"));
+	}
+}
+
+
+xValidator::xValidator(double bottom, double top, int decimals, QLineEdit *lineEdit)
+: QValidator(lineEdit),
+m_flag(DOUBLE_FLAG),
+m_bBottomClose(true),
+m_bTopClose(true)
+{
+	m_bottom = bottom;
+	m_top = top;
+	m_dec = decimals;
 	if (lineEdit)
 	{
 		lineEdit->setToolTip(QString::fromLocal8Bit("[%1,%2],double,%3")
 			.arg(m_bottom.toDouble())
 			.arg(m_top.toDouble())
+			.arg(decimals));
+	}
+}
+
+xValidator::xValidator(double bottom, double top, bool bBottomClose, bool bTopClose, int decimals, QLineEdit *lineEdit)
+{
+	m_bottom = bottom;
+	m_top = top;
+	m_bBottomClose = bBottomClose;
+	m_bTopClose = bTopClose;
+	m_dec = decimals;
+	if (lineEdit)
+	{
+		lineEdit->setToolTip(QString::fromLocal8Bit("%1%2,%3%4,double,%5")
+			.arg(m_bBottomClose ? "[" : "(")
+			.arg(m_bottom.toDouble())
+			.arg(m_top.toDouble())
+			.arg(m_bTopClose ? "]" : ")")
 			.arg(decimals));
 	}
 }
@@ -56,13 +94,13 @@ QValidator::State xValidator::validate(QString & input, int &pos) const
 	if (input.isEmpty())
 		return QValidator::Intermediate;
 
-	if(pos>0 && input.size()>=pos)
+	if (pos>0 &&input.size()>=pos)
 	{
-	    //空格处理
-	    QChar word = input.at(pos-1);
-		if(word.isSpace())
+		//空格处理
+		QChar word = input.at(pos - 1);
+		if (word.isSpace())
 		{
-			retrun QValidator::Invalid;
+			return QValidator::Invalid;
 		}
 	}
 	if (bottom >= 0 && input.startsWith('-'))
@@ -91,13 +129,51 @@ QValidator::State xValidator::validate(QString & input, int &pos) const
 	double i = input.toDouble(&ok); 
 	if (!ok)
 		return	invalidTip();
-	// 数值大小
-	//+
-	if (top > 0 && (i > top || (bottom <0 && i<bottom)))
-		return	invalidTip();
-	//-
-	if (top < 0 && i < bottom)
-		return	invalidTip();
+
+	if (!m_bBottomClose && m_bTopClose)
+	{//左开右闭
+
+		// 数值大小
+		//+
+		if (top >= 0 && (i >= top || (bottom < 0 && i < bottom)))
+			return	invalidTip();
+		//-
+		if (top <= 0 && i < bottom)
+			return	invalidTip();
+	}
+	else if (m_bBottomClose && !m_bTopClose)
+	{//左闭右开
+
+		// 数值大小
+		//+
+		if (top > 0 && (i > top || (bottom <= 0 && i <= bottom)))
+			return	invalidTip();
+		//-
+		if (top < 0 && i <= bottom)
+			return	invalidTip();
+	}
+	else if (!m_bBottomClose && !m_bTopClose)
+	{//左开右开
+
+		// 数值大小
+		//+
+		if (top >= 0 && (i >= top || (bottom <= 0 && i <= bottom)))
+			return	invalidTip();
+		//-
+		if (top <= 0 && i <= bottom)
+			return	invalidTip();
+	}
+	else if (m_bBottomClose && m_bTopClose)
+	{//左闭右闭
+
+		// 数值大小
+		//+
+		if (top > 0 && (i > top || (bottom < 0 && i < bottom)))
+			return	invalidTip();
+		//-
+		if (top < 0 && i < bottom)
+			return	invalidTip();
+	}
 
 	int iInt = getNumberInt(i);
 	int ni = QString::number(iInt).length();
@@ -107,8 +183,8 @@ QValidator::State xValidator::validate(QString & input, int &pos) const
 	int nt = QString::number(getNumberInt(top)).length();
 	if (top < 0) nb -= 1;
 
-	if ((iInt* pow(10, nb - ni) + (i - iInt)) >= bottom
-		|| (iInt*pow(10, nt - ni) + (i - iInt)) <= top)
+	if ((iInt* pow(10.0, nb - ni) + (i - iInt)) >= bottom
+		|| (iInt*pow(10.0, nt - ni) + (i - iInt)) <= top)
 		return	QValidator::Acceptable;
 
 	return invalidTip();
