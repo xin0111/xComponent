@@ -137,7 +137,7 @@ QValidator::State xValidator::validate(QString & input, int &pos) const
 			QRegExp rx(QString("^[+|-]?0+.0{%1}$").arg(m_dec));
 			if(rx.exactMatch(input))
 			{
-				retrun invalidTip();
+				return invalidTip();
 			}
 			return QValidator::Acceptable;
 		}
@@ -159,7 +159,6 @@ QValidator::State xValidator::validate(QString & input, int &pos) const
 	{//左闭右开
 
 		// 数值大小
-		//+
 		//+
 		if (i >= top)
 			return	invalidTip();
