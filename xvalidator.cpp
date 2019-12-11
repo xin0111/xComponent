@@ -129,16 +129,30 @@ QValidator::State xValidator::validate(QString & input, int &pos) const
 	double i = input.toDouble(&ok); 
 	if (!ok)
 		return	invalidTip();
+	
+	if(DOUBLE_FLAG == m_flag)
+	{
+		if(i==0 && (top == 0 || bottom == 0))
+		{// 0.000 处理
+			QRegExp rx(QString("^[+|-]?0+.0{%1}$").arg(m_dec));
+			if(rx.exactMatch(input))
+			{
+				retrun invalidTip();
+			}
+			return QValidator::Acceptable;
+		}
+	}
 
 	if (!m_bBottomClose && m_bTopClose)
 	{//左开右闭
 
 		// 数值大小
 		//+
-		if (top >= 0 && (i >= top || (bottom < 0 && i < bottom)))
+		//+
+		if (i > top)
 			return	invalidTip();
 		//-
-		if (top <= 0 && i < bottom)
+		if (i <= bottom)
 			return	invalidTip();
 	}
 	else if (m_bBottomClose && !m_bTopClose)
@@ -146,10 +160,11 @@ QValidator::State xValidator::validate(QString & input, int &pos) const
 
 		// 数值大小
 		//+
-		if (top > 0 && (i > top || (bottom <= 0 && i <= bottom)))
+		//+
+		if (i >= top)
 			return	invalidTip();
 		//-
-		if (top < 0 && i <= bottom)
+		if (i < bottom)
 			return	invalidTip();
 	}
 	else if (!m_bBottomClose && !m_bTopClose)
@@ -157,10 +172,10 @@ QValidator::State xValidator::validate(QString & input, int &pos) const
 
 		// 数值大小
 		//+
-		if (top >= 0 && (i >= top || (bottom <= 0 && i <= bottom)))
+		if (i >= top)
 			return	invalidTip();
 		//-
-		if (top <= 0 && i <= bottom)
+		if (i <= bottom)
 			return	invalidTip();
 	}
 	else if (m_bBottomClose && m_bTopClose)
@@ -168,10 +183,10 @@ QValidator::State xValidator::validate(QString & input, int &pos) const
 
 		// 数值大小
 		//+
-		if (top > 0 && (i > top || (bottom < 0 && i < bottom)))
+		if (i > top)
 			return	invalidTip();
 		//-
-		if (top < 0 && i < bottom)
+		if (i < bottom)
 			return	invalidTip();
 	}
 
