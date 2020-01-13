@@ -2,6 +2,7 @@
 #include <QMessageBox>
 #include <QLineEdit>
 #include <QToolTip>
+#include "QLocale"
 
 
 xValidator::xValidator(int bottom, int top, QLineEdit *lineEdit)
@@ -22,6 +23,8 @@ m_bTopClose(true)
 	init(lineEdit);
 }
 xValidator::xValidator(int bottom, int top, bool bBottomClose, bool bTopClose, QLineEdit *lineEdit)
+:QValidator(lineEdit),
+m_flag(INT_FLAG)
 {
 	m_bottom = bottom;
 	m_top = top;
@@ -59,6 +62,8 @@ m_bTopClose(true)
 }
 
 xValidator::xValidator(double bottom, double top, bool bBottomClose, bool bTopClose, int decimals, QLineEdit *lineEdit)
+:QValidator(lineEdit),
+m_flag(DOUBLE_FLAG)
 {
 	m_bottom = bottom;
 	m_top = top;
@@ -146,33 +151,29 @@ QValidator::State xValidator::validate(QString & input, int &pos) const
 			return QValidator::Acceptable;
 		}
 	}
-
 	if (!m_bBottomClose && m_bTopClose)
 	{//左开右闭
-
-		// 数值大小
-		//+
-		if (i > top)
+		if (i > 0 && i > top)
 			return	invalidTip();
+		else if (i < 0 && i < bottom)
+			return invalidTip();
 		//-
 		if (i == bottom)
 			return	invalidTip();
 	}
 	else if (m_bBottomClose && !m_bTopClose)
 	{//左闭右开
-
-		// 数值大小
-		//+
-		if (i >= top)
+		if (i > 0 && i >= top)
 			return	invalidTip();
+		else if (i < 0 && i < bottom)
+			return invalidTip();
 	}
 	else if (!m_bBottomClose && !m_bTopClose)
 	{//左开右开
-
-		// 数值大小
-		//+
-		if (i >= top)
+		if (i > 0 && i >= top)
 			return	invalidTip();
+		else if (i < 0 && i < bottom)
+			return invalidTip();
 		//-
 		if (i == bottom)
 			return	invalidTip();
@@ -180,10 +181,14 @@ QValidator::State xValidator::validate(QString & input, int &pos) const
 	else if (m_bBottomClose && m_bTopClose)
 	{//左闭右闭
 
-		// 数值大小
-		//+
-		if (i > top)
-			return	invalidTip();
+		if (i >= 0) {
+			// the -entered < b condition is necessary to allow people to type
+			// the minus last (e.g. for right-to-left languages)
+			return (i > top && -i < bottom) ? invalidTip() : Acceptable;
+		}
+		else {
+			return (i < bottom) ? invalidTip() : Acceptable;
+		}
 	}
 
 	int iInt = getNumberInt(i);
@@ -204,20 +209,26 @@ QValidator::State xValidator::validate(QString & input, int &pos) const
 QValidator::State xValidator::invalidTip() const
 {
 	QLineEdit *lineEdit = qobject_cast<QLineEdit*>(this->parent());
-	QWidget* widget = (QWidget*)lineEdit->parent();
-	if (lineEdit && widget)
-		QToolTip::showText(widget->mapToGlobal(lineEdit->pos()),
-		lineEdit->toolTip(), lineEdit);
+	if (lineEdit)
+	{
+		QWidget* widget = (QWidget*)lineEdit->parent();
+		if (widget)
+		{
+			QToolTip::showText(widget->mapToGlobal(lineEdit->pos()),
+				lineEdit->toolTip(), lineEdit);
+		}
+	}
 	return QValidator::Invalid;
 }
 
-void xValidator::slotCheckMin()
+void xValidator::slotCheckVal()
 {
 	QLineEdit* lineEdit = qobject_cast<QLineEdit*>(sender());
 	if (lineEdit != nullptr)
 	{
 		double val = lineEdit->text().toDouble();
-		if (val < m_bottom.toDouble())
+		if (val < m_bottom.toDouble() 
+			|| val > m_top.toDouble())
 		{
 			lineEdit->clear();
 		}
@@ -229,6 +240,6 @@ void xValidator::init(QLineEdit *lineEdit)
 	if (lineEdit)
 	{
 		lineEdit->setPlaceholderText(lineEdit->toolTip());
-		connect(lineEdit, SIGNAL(editingFinished()), this, SLOT(slotCheckMin()));
+		connect(lineEdit, SIGNAL(editingFinished()), this, SLOT(slotCheckVal()));
 	}
 }

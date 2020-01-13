@@ -20,8 +20,8 @@ public:
 	~xValidator();
 	 QValidator::State validate(QString &, int &) const Q_DECL_OVERRIDE;
 	 QValidator::State invalidTip()  const;
-public slots:
-	 void slotCheckMin();
+protected slots:
+	 void slotCheckVal();
 private:
 	Q_DISABLE_COPY(xValidator)
 
