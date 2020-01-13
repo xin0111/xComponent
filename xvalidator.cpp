@@ -151,15 +151,14 @@ QValidator::State xValidator::validate(QString & input, int &pos) const
 			return QValidator::Acceptable;
 		}
 	}
+
+
 	if (!m_bBottomClose && m_bTopClose)
 	{//×ó¿ªÓÒ±Õ
 		if (i > 0 && i > top)
 			return	invalidTip();
 		else if (i < 0 && i < bottom)
 			return invalidTip();
-		//-
-		if (i == bottom)
-			return	invalidTip();
 	}
 	else if (m_bBottomClose && !m_bTopClose)
 	{//×ó±ÕÓÒ¿ª
@@ -174,9 +173,6 @@ QValidator::State xValidator::validate(QString & input, int &pos) const
 			return	invalidTip();
 		else if (i < 0 && i < bottom)
 			return invalidTip();
-		//-
-		if (i == bottom)
-			return	invalidTip();
 	}
 	else if (m_bBottomClose && m_bTopClose)
 	{//×ó±ÕÓÒ±Õ
