@@ -19,6 +19,7 @@ m_bTopClose(true)
 			.arg(m_bottom.toInt())
 			.arg(m_top.toInt()));
 	}
+	init(lineEdit);
 }
 xValidator::xValidator(int bottom, int top, bool bBottomClose, bool bTopClose, QLineEdit *lineEdit)
 {
@@ -34,6 +35,7 @@ xValidator::xValidator(int bottom, int top, bool bBottomClose, bool bTopClose, Q
 			.arg(m_top.toInt())
 			.arg(m_bTopClose ? "]" : ")"));
 	}
+	init(lineEdit);
 }
 
 
@@ -53,6 +55,7 @@ m_bTopClose(true)
 			.arg(m_top.toDouble())
 			.arg(decimals));
 	}
+	init(lineEdit);
 }
 
 xValidator::xValidator(double bottom, double top, bool bBottomClose, bool bTopClose, int decimals, QLineEdit *lineEdit)
@@ -71,6 +74,7 @@ xValidator::xValidator(double bottom, double top, bool bBottomClose, bool bTopCl
 			.arg(m_bTopClose ? "]" : ")")
 			.arg(decimals));
 	}
+	init(lineEdit);
 }
 
 xValidator::~xValidator()
@@ -80,9 +84,9 @@ xValidator::~xValidator()
 int getNumberInt(double d)
 {
 	if (d > 0)
-		return floor(d);//è¿”å›žå°äºŽæˆ–ç­‰äºŽæŒ‡å®šæ•°å­—çš„æœ€å¤§æ•´æ•°
+		return floor(d);//·µ»ØÐ¡ÓÚ»òµÈÓÚÖ¸¶¨Êý×ÖµÄ×î´óÕûÊý
 
-	return ceil(d); // è¿”å›žå¤§äºŽæˆ–ç­‰äºŽæŒ‡å®šæ•°å­—çš„æœ€å°æ•´æ•°ã€‚ 
+	return ceil(d); // ·µ»Ø´óÓÚ»òµÈÓÚÖ¸¶¨Êý×ÖµÄ×îÐ¡ÕûÊý¡£ 
 }
 
 QValidator::State xValidator::validate(QString & input, int &pos) const
@@ -90,13 +94,13 @@ QValidator::State xValidator::validate(QString & input, int &pos) const
 	double bottom = m_bottom.toDouble();
 	double top = m_top.toDouble();
 
-	//ç¬¦å·
+	//·ûºÅ
 	if (input.isEmpty())
 		return QValidator::Intermediate;
 
 	if (pos>0 &&input.size()>=pos)
 	{
-		//ç©ºæ ¼å¤„ç†
+		//¿Õ¸ñ´¦Àí
 		QChar word = input.at(pos - 1);
 		if (word.isSpace())
 		{
@@ -113,7 +117,7 @@ QValidator::State xValidator::validate(QString & input, int &pos) const
 		&& input.length() == 1)
 		return QValidator::Intermediate;
 
-	//å°æ•°ä½æ•°
+	//Ð¡ÊýÎ»Êý
 	if (input.indexOf(".") != -1)
 	{
 		if (xValidator::INT_FLAG == m_flag)
@@ -124,18 +128,18 @@ QValidator::State xValidator::validate(QString & input, int &pos) const
 			return	invalidTip();
 	}
 
-	//æ•°å­—
+	//Êý×Ö
 	bool ok = false;
 	double i = input.toDouble(&ok); 
 	if (!ok)
 		return	invalidTip();
-	
-	if(DOUBLE_FLAG == m_flag)
+
+	if (DOUBLE_FLAG == m_flag)
 	{
-		if(i==0 && (top == 0 || bottom == 0))
-		{// 0.000 å¤„ç†
+		if (i == 0 && (top == 0 || bottom == 0))
+		{// 0.000 ´¦Àí
 			QRegExp rx(QString("^[+|-]?0+.0{%1}$").arg(m_dec));
-			if(rx.exactMatch(input))
+			if (rx.exactMatch(input))
 			{
 				return invalidTip();
 			}
@@ -144,48 +148,41 @@ QValidator::State xValidator::validate(QString & input, int &pos) const
 	}
 
 	if (!m_bBottomClose && m_bTopClose)
-	{//å·¦å¼€å³é—­
+	{//×ó¿ªÓÒ±Õ
 
-		// æ•°å€¼å¤§å°
-		//+
+		// ÊýÖµ´óÐ¡
 		//+
 		if (i > top)
 			return	invalidTip();
 		//-
-		if (i <= bottom)
+		if (i == bottom)
 			return	invalidTip();
 	}
 	else if (m_bBottomClose && !m_bTopClose)
-	{//å·¦é—­å³å¼€
+	{//×ó±ÕÓÒ¿ª
 
-		// æ•°å€¼å¤§å°
+		// ÊýÖµ´óÐ¡
 		//+
 		if (i >= top)
-			return	invalidTip();
-		//-
-		if (i < bottom)
 			return	invalidTip();
 	}
 	else if (!m_bBottomClose && !m_bTopClose)
-	{//å·¦å¼€å³å¼€
+	{//×ó¿ªÓÒ¿ª
 
-		// æ•°å€¼å¤§å°
+		// ÊýÖµ´óÐ¡
 		//+
 		if (i >= top)
 			return	invalidTip();
 		//-
-		if (i <= bottom)
+		if (i == bottom)
 			return	invalidTip();
 	}
 	else if (m_bBottomClose && m_bTopClose)
-	{//å·¦é—­å³é—­
+	{//×ó±ÕÓÒ±Õ
 
-		// æ•°å€¼å¤§å°
+		// ÊýÖµ´óÐ¡
 		//+
 		if (i > top)
-			return	invalidTip();
-		//-
-		if (i < bottom)
 			return	invalidTip();
 	}
 
@@ -214,4 +211,24 @@ QValidator::State xValidator::invalidTip() const
 	return QValidator::Invalid;
 }
 
+void xValidator::slotCheckMin()
+{
+	QLineEdit* lineEdit = qobject_cast<QLineEdit*>(sender());
+	if (lineEdit != nullptr)
+	{
+		double val = lineEdit->text().toDouble();
+		if (val < m_bottom.toDouble())
+		{
+			lineEdit->clear();
+		}
+	}
+}
 
+void xValidator::init(QLineEdit *lineEdit)
+{
+	if (lineEdit)
+	{
+		lineEdit->setPlaceholderText(lineEdit->toolTip());
+		connect(lineEdit, SIGNAL(editingFinished()), this, SLOT(slotCheckMin()));
+	}
+}

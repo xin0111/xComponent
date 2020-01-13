@@ -20,8 +20,12 @@ public:
 	~xValidator();
 	 QValidator::State validate(QString &, int &) const Q_DECL_OVERRIDE;
 	 QValidator::State invalidTip()  const;
+public slots:
+	 void slotCheckMin();
 private:
 	Q_DISABLE_COPY(xValidator)
+
+	void init(QLineEdit *lineEdit);
 	QVariant m_bottom;
 	QVariant m_top;
 	bool m_bBottomClose;
