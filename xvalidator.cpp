@@ -224,7 +224,9 @@ void xValidator::slotCheckVal()
 	{
 		double val = lineEdit->text().toDouble();
 		if (val < m_bottom.toDouble() 
-			|| val > m_top.toDouble())
+			|| val > m_top.toDouble()
+			|| (!m_bTopClose && val == m_top.toDouble())
+			|| (!m_bBottomClose && val == m_bottom.toDouble()))
 		{
 			lineEdit->clear();
 		}
