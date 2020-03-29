@@ -166,7 +166,7 @@ namespace xComponent{
 	      is_template_instant_of<std::unordered_map, T>::value 
 	    >{};
 
-		//emplace_back:������Ԫ�ص�����β
+		//emplace_back:
 	    template< class T >
 	    struct is_emplace_back_able : std::integral_constant < bool,
 	      is_template_instant_of<std::deque, T>::value ||
@@ -1469,55 +1469,24 @@ namespace xComponent{
 	    utf += v;
 	    return utf;
 	  }
-	
-	  template<typename string_ty>
-	  inline bool esacpe_utf8(string_ty& str , uint64_t utf1)
-	  {
-	    if (utf1 < 0x80)
-	    {
-	      str.append(1, (char)utf1);
-	    }
-	    else if (utf1 < 0x800)
-	    {
-	      str.append(1, (char)(0xC0 | ((utf1 >> 6) & 0xFF)));
-	      str.append(1, (char)(0x80 | ((utf1 & 0x3F))));
-	    }
-	    else if (utf1 < 0x80000)
-	    {
-	      str.append(1, (char)(0xE0 | ((utf1 >> 12) & 0xFF)));
-	      str.append(1, (char)(0x80 | ((utf1 >> 6) & 0x3F)));
-	      str.append(1, (char)(0x80 | ((utf1 & 0x3F))));
-	    }
-	    else
-	    {
-	      if (utf1 < 0x110000)
-	      {
-	        return false;
-	      }
-	      str.append(1, (char)(0xF0 | ((utf1 >> 18) & 0xFF)));
-	      str.append(1, (char)(0x80 | ((utf1 >> 12) & 0x3F)));
-	      str.append(1, (char)(0x80 | ((utf1 >> 6) & 0x3F)));
-	      str.append(1, (char)(0x80 | ((utf1 & 0x3F))));
-	    }
-	    return true;
-	  }
 
-	  inline bool esacpe_utf8(QString& str, uint64_t utf1)
+	  template<typename string_ty>
+	  inline bool esacpe_utf8(string_ty& str, uint64_t utf1)
 	  {
 		  if (utf1 < 0x80)
 		  {
-			  str.append((char)utf1);
+			  str += ((char)utf1);
 		  }
 		  else if (utf1 < 0x800)
 		  {
-			  str.append((char)(0xC0 | ((utf1 >> 6) & 0xFF)));
-			  str.append((char)(0x80 | ((utf1 & 0x3F))));
+			  str += ((char)(0xC0 | ((utf1 >> 6) & 0xFF)));
+			  str += ((char)(0x80 | ((utf1 & 0x3F))));
 		  }
 		  else if (utf1 < 0x80000)
 		  {
-			  str.append((char)(0xE0 | ((utf1 >> 12) & 0xFF)));
-			  str.append((char)(0x80 | ((utf1 >> 6) & 0x3F)));
-			  str.append((char)(0x80 | ((utf1 & 0x3F))));
+			  str += ((char)(0xE0 | ((utf1 >> 12) & 0xFF)));
+			  str += ((char)(0x80 | ((utf1 >> 6) & 0x3F)));
+			  str += ((char)(0x80 | ((utf1 & 0x3F))));
 		  }
 		  else
 		  {
@@ -1525,10 +1494,10 @@ namespace xComponent{
 			  {
 				  return false;
 			  }
-			  str.append((char)(0xF0 | ((utf1 >> 18) & 0xFF)));
-			  str.append((char)(0x80 | ((utf1 >> 12) & 0x3F)));
-			  str.append((char)(0x80 | ((utf1 >> 6) & 0x3F)));
-			  str.append((char)(0x80 | ((utf1 & 0x3F))));
+			  str += ((char)(0xF0 | ((utf1 >> 18) & 0xFF)));
+			  str += ((char)(0x80 | ((utf1 >> 12) & 0x3F)));
+			  str += ((char)(0x80 | ((utf1 >> 6) & 0x3F)));
+			  str += ((char)(0x80 | ((utf1 & 0x3F))));
 		  }
 		  return true;
 	  }
@@ -1612,92 +1581,9 @@ namespace xComponent{
 	        break;
 	      }
 	      }
-	      str.append(1, c);
+		  str += (c);
 	    } while (len > 0);
 	    return true;
-	  }
-
-	  bool escape_string(QString& str, const char * data, size_t len)
-	  {
-		  str.clear();
-		  str.reserve(len);
-		  if (len == 0)
-			  return true;
-		  do
-		  {
-			  auto c = *data++;
-			  --len;
-			  switch (c)
-			  {
-			  case '\\':
-			  {
-						   c = *data++;
-						   --len;
-						   switch (c)
-						   {
-						   case '\\':
-						   {
-										c = '\\';
-										break;
-						   }
-						   case '/':
-						   {
-									   c = '/';
-									   break;
-						   }
-						   case 'b':
-						   {
-									   c = '\b';
-									   break;
-						   }
-						   case 'f':
-						   {
-									   c = '\f';
-									   break;
-						   }
-						   case 'n':
-						   {
-									   c = '\n';
-									   break;
-						   }
-						   case 'r':
-						   {
-									   c = '\r';
-									   break;
-						   }
-						   case 't':
-						   {
-									   c = '\t';
-									   break;
-						   }
-						   case '"':
-						   {
-									   break;
-						   }
-						   case 'u':
-						   {
-									   if (len < 4)
-										   return false;
-									   uint64_t uft1 = read_utf(data, len);
-									   data += 4;
-									   len -= 4;
-									   if (uft1 == 0)
-										   return false;
-									   if (!esacpe_utf8(str, uft1))
-										   return false;
-									   continue;
-						   }
-						   default:
-						   {
-									  return false;
-						   }
-						   }
-						   break;
-			  }
-			  }			  
-			  str.append(c);
-		  } while (len > 0);
-		  return true;
 	  }
 
 	  template<typename ty>
