@@ -162,7 +162,6 @@ namespace xComponent{
 				|| is_template_instant_of<QList, T>::value 
 				|| is_template_instant_of<QVector, T>::value
 #endif // _QT_ENV
-
 			> {};
 
 			template< class T >
@@ -172,7 +171,6 @@ namespace xComponent{
 			>{};
 
 #ifdef _QT_ENV
-
 			template< class T >
 			struct q_is_associat_container : std::integral_constant < bool,
 				is_template_instant_of<QMap, T>::value
@@ -2289,6 +2287,5 @@ namespace xComponent{
 			  }\
 			};\
 			}
-
 
 }//namespace xComponent
