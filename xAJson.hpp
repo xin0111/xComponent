@@ -2221,17 +2221,17 @@ namespace xComponent{
 			save_to<ty, stream_ty, write_tp>(fs, val);
 		}
 	}
-
-#define AJSON(TYPE,...) \
+	
+	#define AJSON(TYPE,...) \
 	namespace ajson\
-			{\
+	{\
 	  template<>\
 	  struct json_impl < TYPE , void >\
-			  {\
+	  {\
 	    struct json_helper : public TYPE\
-			    {\
+	    {\
 	      inline void read_(reader& rd)\
-			      {\
+	      {\
 	        auto& fields = this_field_list();\
 	        if (rd.expect('{') == false){ rd.error("read object must start with {!"); }\
 	          rd.next();\
@@ -2239,53 +2239,53 @@ namespace xComponent{
 	          return;\
 	        auto mber = rd.peek();\
 	        do\
-							        {\
+	        {\
 	          if (mber.type != token::t_string){ rd.error("object key must be string"); }\
 	            rd.next();\
 	          if (rd.expect(':') == false){ rd.error("invalid json document!"); }\
 	            rd.next();\
 	          if (read_members(rd, &fields[0], mber.str, 0,__VA_ARGS__) == 0)\
-			  			  	          {\
+	          {\
 	            skip(rd);\
-			  			  	          }\
+	          }\
 	          if (rd.expect('}'))\
-			  			  	          {\
+	          {\
 	            rd.next();\
 	            return;\
-			  			  	          }\
-						  			  	          else if (rd.expect(','))\
-			          {\
+	          }\
+	          else if (rd.expect(','))\
+	          {\
 	            rd.next();\
 	            mber = rd.peek();\
 	            continue;\
-			          }\
+	          }\
 	          rd.error("invalid json document!");\
-							        } while (true);\
-			      }\
+	        } while (true);\
+	      }\
 	    template<typename write_ty>\
 	    inline void write_(write_ty& wt) const\
-			    {\
+	    {\
 	      auto& fields = this_field_list();\
 	      wt.put('{');\
 	      ajson::write_members(wt, &fields[0], 0,__VA_ARGS__);\
 	      wt.put('}');\
-			    }\
-			  };\
+	    }\
+	  };\
 	  static inline detail::field_list& this_field_list()\
-			  {\
+	  {\
 	    static auto fields = detail::split_fields(STRINGFY_LIST(__VA_ARGS__));\
 	    return fields;\
-			  }\
+	  }\
 	  static inline void read(reader& rd, TYPE& v)\
-			  {\
+	  {\
 	    reinterpret_cast<json_helper &>(v).read_(rd);\
-			  }\
+	  }\
 	  template<typename write_ty>\
 	  static inline void write(write_ty& wt, TYPE const& v)\
-			  {\
+	  {\
 	    reinterpret_cast<json_helper const &>(v).write_(wt);\
-			  }\
-			};\
-			}
+	  }\
+	};\
+	}
 
 }//namespace xComponent
