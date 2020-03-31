@@ -262,7 +262,7 @@ namespace xComponent{
 			char skip()
 			{
 				auto c = read();
-				while (c == ' ' || c == '\t' || c == '\r' || c == '\n')
+				while (c == ' ' || c == '\t' || c == '\r' || c == '\n' )
 				{
 					take();
 					c = read();
@@ -525,6 +525,7 @@ namespace xComponent{
 							cur_tok_.value.d64 = (double)cur_tok_.value.u64;
 						}
 						parser_exp();
+						break;
 					}
 					default:
 					{
@@ -1384,7 +1385,8 @@ namespace xComponent{
 				}
 				case token::t_number:
 				{
-					val = static_cast<ty>(tok.value.d64);
+					double temp = std::strtold(tok.str.str, nullptr);
+					val = static_cast<ty>(temp);				
 					if (tok.neg)
 						val = -val;
 					break;
@@ -1401,7 +1403,7 @@ namespace xComponent{
 			{
 				char buffer[64] = { 0 };
 #ifdef _MSC_VER
-				_gcvt_s(buffer, 63, val, 8);
+				_gcvt_s(buffer, 63, val, FLT_MANT_DIG);
 #else
 				gcvt(val, 62, buffer);
 #endif // MSVC
@@ -2212,6 +2214,16 @@ namespace xComponent{
 			typedef typename std::remove_cv<ty>::type rty;
 			write_tp wt(ss);
 			json_impl<rty>::template write(wt, val);
+		}
+
+		template<typename ty>
+		inline QString save_to(ty& val)
+		{
+			typedef typename std::remove_cv<ty>::type rty;
+			string_stream ss;
+			lite_write<string_stream>  wt(ss);
+			json_impl<rty>::template write(wt, val);
+			return ss.qstr();
 		}
 
 		template<typename ty, typename stream_ty = ajson_file_stream, class write_tp = lite_write<stream_ty> >
