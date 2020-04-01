@@ -2221,7 +2221,6 @@ namespace xComponent{
 		template<typename ty>
 		inline QString to_qjson(ty& val)
 		{//QString local8Bit
-			string_stream ss;
 			typedef typename std::remove_cv<ty>::type rty;
 			string_stream ss;
 			lite_write<string_stream>  wt(ss);
@@ -2236,7 +2235,7 @@ namespace xComponent{
 		
 		static std::string to_str(const QString& strjson)
 		{
-			return strjson.toStdString();
+			return strjson.toLocal8Bit().toStdString();
 		}
 
 		template<typename ty, typename stream_ty = ajson_file_stream, class write_tp = lite_write<stream_ty> >

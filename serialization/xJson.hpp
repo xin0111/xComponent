@@ -637,7 +637,7 @@ namespace xComponent{
 	    size_t offset = 0;
 	    return std::move( parse_next( str.toLocal8Bit().toStdString(), offset ) );
 	}
-	
+
 	} // End Namespace json
 
 }//namespace xComponent
