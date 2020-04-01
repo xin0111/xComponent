@@ -2110,8 +2110,9 @@ namespace xComponent{
 		}
 
 		template<typename ty>
-		inline void load_from_buff(ty& val, const char * buff, size_t len = -1)
+		inline void load_from_buff(ty& val, const std::string&  data, size_t len = -1)
 		{
+			const char* buff = data.c_str();
 			if (strcmp(buff, "null") == 0) return;
 
 			typedef typename std::remove_cv<ty>::type rty;
