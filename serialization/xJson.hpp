@@ -185,7 +185,6 @@ namespace xComponent{
 	            return ret;
 	        }
 	
-	        static HJSON Load( const QString & );
 	
 	        template <typename T>
 	        void append( T arg ) {
@@ -410,24 +409,19 @@ namespace xComponent{
 	        Class Type = Class::Null;
 	};
 	
-	HJSON Array() {
-	    return std::move( HJSON::Make( HJSON::Class::Array ) );
+	static HJSON Array() {
+		return std::move(HJSON::Make(HJSON::Class::Array));
 	}
-	
+
 	template <typename... T>
-	HJSON Array( T... args ) {
-	    HJSON arr = HJSON::Make( HJSON::Class::Array );
-	    arr.append( args... );
-	    return std::move( arr );
+	static HJSON Array(T... args) {
+		HJSON arr = HJSON::Make(HJSON::Class::Array);
+		arr.append(args...);
+		return std::move(arr);
 	}
-	
-	HJSON Object() {
-	    return std::move( HJSON::Make( HJSON::Class::Object ) );
-	}
-	
-	std::ostream& operator<<( std::ostream &os, const HJSON &json ) {
-	    os << json.dump();
-	    return os;
+
+	static HJSON Object() {
+		return std::move(HJSON::Make(HJSON::Class::Object));
 	}
 	
 	namespace {
@@ -633,7 +627,7 @@ namespace xComponent{
 	    }
 	}
 	
-	HJSON HJSON::Load( const QString &str ) {
+	static HJSON Load(const QString &str) {
 	    size_t offset = 0;
 	    return std::move( parse_next( str.toLocal8Bit().toStdString(), offset ) );
 	}

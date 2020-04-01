@@ -31,8 +31,8 @@ int main(int argc, char * argv[])
 	obj["Person"] = strPerson;
 	//////////////////////////////////////////////////////////////////////////
 	QString qsPerson = ajson::to_qstr(obj.dump());
-	HJSON obj1 = HJSON::Load(qsPerson);
+	HJSON obj1 = Load(qsPerson);
 	Person person1;
-	ajson::load_from_buff(person1, obj1.at("Person").dump().c_str());
+	ajson::load_from_buff(person1, obj1.at("Person").dump());
 	return 0;
 }
