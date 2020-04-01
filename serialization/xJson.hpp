@@ -305,20 +305,19 @@ namespace xComponent{
 	            return JSONWrapper<deque<HJSON>>( nullptr );
 	        }
 	
+			//traversal Map
 	        JSONConstWrapper<map<string,HJSON>> ObjectRange() const {
 	            if( Type == Class::Object )
 	                return JSONConstWrapper<map<string,HJSON>>( Internal.Map );
 	            return JSONConstWrapper<map<string,HJSON>>( nullptr );
 	        }
 	
-	
+			//traversal List
 	        JSONConstWrapper<deque<HJSON>> ArrayRange() const { 
 	            if( Type == Class::Array )
 	                return JSONConstWrapper<deque<HJSON>>( Internal.List );
 	            return JSONConstWrapper<deque<HJSON>>( nullptr );
 	        }
-
-			map<string, HJSON>  getMap(){ return *Internal.Map; }
 
 	        string dump( int depth = 1) const {
 	            for( int i = 0; i < depth; ++i);
