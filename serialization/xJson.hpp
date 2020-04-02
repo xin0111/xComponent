@@ -318,8 +318,6 @@ namespace xComponent{
 	            return JSONConstWrapper<deque<HJSON>>( nullptr );
 	        }
 
-			map<string, HJSON>  getMap(){ return *Internal.Map; }
-
 	        string dump( int depth = 1) const {
 	            for( int i = 0; i < depth; ++i);
 	
@@ -357,7 +355,7 @@ namespace xComponent{
 						  return "\"" + (*Internal.String) + "\"";
 					}
 	                case Class::Floating:
-	                    return QString::number( Internal.Float ,'g', DBL_DIG+2 /*DBL_DECIMAL_DIG*/).toStdString();
+	                    return QString::number( Internal.Float , 'e', DBL_DIG + 1).toStdString();
 	                case Class::Integral:
 	                    return QString::number( Internal.Int ).toStdString();
 	                case Class::Boolean:

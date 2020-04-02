@@ -1239,7 +1239,7 @@ namespace xComponent{
 			typename std::enable_if <std::is_floating_point<ty>::value>::type >
 		{
 			static inline void read(reader& rd, ty& val)
-			{
+			{//float number read
 				auto& tok = rd.peek();
 				switch (tok.type)
 				{
@@ -1273,20 +1273,12 @@ namespace xComponent{
 			}
 			template<typename write_ty>
 			static inline void write(write_ty& wt, ty const& val)
-			{
-				char buffer[64] = { 0 };
-#ifdef _MSC_VER
-				_gcvt_s(buffer, 63, val, FLT_MANT_DIG);
-#else
-				gcvt(val, 62, buffer);
-#endif // MSVC
-				size_t len = std::strlen(buffer);
-				if (buffer[len - 1] == '.')
-				{
-					buffer[len - 1] = '\0';
-					--len;
-				}
-				wt.write_liter(buffer, len);
+			{//float number write
+				QString sNumber = QString::number(val, 'e', DBL_DIG + 1);
+
+				size_t len = sNumber.length();
+
+				wt.write_liter(sNumber.toStdString().c_str(), len);
 			}
 
 			template<typename write_ty>
