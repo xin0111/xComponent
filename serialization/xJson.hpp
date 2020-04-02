@@ -305,19 +305,20 @@ namespace xComponent{
 	            return JSONWrapper<deque<HJSON>>( nullptr );
 	        }
 	
-			//traversal Map
 	        JSONConstWrapper<map<string,HJSON>> ObjectRange() const {
 	            if( Type == Class::Object )
 	                return JSONConstWrapper<map<string,HJSON>>( Internal.Map );
 	            return JSONConstWrapper<map<string,HJSON>>( nullptr );
 	        }
 	
-			//traversal List
+	
 	        JSONConstWrapper<deque<HJSON>> ArrayRange() const { 
 	            if( Type == Class::Array )
 	                return JSONConstWrapper<deque<HJSON>>( Internal.List );
 	            return JSONConstWrapper<deque<HJSON>>( nullptr );
 	        }
+
+			map<string, HJSON>  getMap(){ return *Internal.Map; }
 
 	        string dump( int depth = 1) const {
 	            for( int i = 0; i < depth; ++i);
@@ -356,9 +357,9 @@ namespace xComponent{
 						  return "\"" + (*Internal.String) + "\"";
 					}
 	                case Class::Floating:
-	                    return std::to_string( Internal.Float );
+	                    return QString::number( Internal.Float ,'g', DBL_DIG+2 /*DBL_DECIMAL_DIG*/).toStdString();
 	                case Class::Integral:
-	                    return std::to_string( Internal.Int );
+	                    return QString::number( Internal.Int ).toStdString();
 	                case Class::Boolean:
 	                    return Internal.Bool ? "true" : "false";
 	                default:
@@ -534,53 +535,71 @@ namespace xComponent{
 	    }
 	
 	    HJSON parse_number( const string &str, size_t &offset ) {
-	        HJSON Number;
-	        string val, exp_str;
-	        char c;
-	        bool isDouble = false;
-	        long exp = 0;
-	        while( true ) {
-	            c = str[offset++];
-	            if( (c == '-') || (c >= '0' && c <= '9') )
-	                val += c;
-	            else if( c == '.' ) {
-	                val += c; 
-	                isDouble = true;
-	            }
-	            else
-	                break;
-	        }
-	        if( c == 'E' || c == 'e' ) {
-	            c = str[ offset++ ];
-	            if( c == '-' ){ ++offset; exp_str += '-';}
-	            while( true ) {
-	                c = str[ offset++ ];
-	                if( c >= '0' && c <= '9' )
-	                    exp_str += c;
-	                else if( !isspace( c ) && c != ',' && c != ']' && c != '}' ) {
-	                    std::cerr << "ERROR: Number: Expected a number for exponent, found '" << c << "'\n";
-	                    return std::move( HJSON::Make( HJSON::Class::Null ) );
-	                }
-	                else
-	                    break;
-	            }
-	            exp = std::stol( exp_str );
-	        }
-	        else if( !isspace( c ) && c != ',' && c != ']' && c != '}' ) {
-	            std::cerr << "ERROR: Number: unexpected character '" << c << "'\n";
-	            return std::move( HJSON::Make( HJSON::Class::Null ) );
-	        }
-	        --offset;
-	        
-	        if( isDouble )
-	            Number = std::stod( val ) * std::pow( 10, exp );
-	        else {
-	            if( !exp_str.empty() )
-	                Number = std::stol( val ) * std::pow( 10, exp );
-	            else
-	                Number = std::stol( val );
-	        }
-	        return std::move( Number );
+			HJSON Number;
+			string val, exp_str;
+			char c;
+			bool isDouble = false;
+			bool isInf = false;
+			bool isNegative = false;
+			long exp = 0;
+			while (true) {
+				c = str[offset++];
+				if ((c == '-'))	{
+					val += c;
+					isNegative = true;
+				}
+				else if ((c >= '0' && c <= '9'))
+					val += c;
+				else if (c == '.') {
+					val += c;
+					isDouble = true;
+				}
+				else if (c == 'i' || c == 'n' || c== 'f' || 
+					c == 'I' || c == 'N' || c == 'F' ||
+					c == '#')
+				{
+					val += c;
+					isInf = true;
+				}
+				else
+					break;
+			}
+			if (c == 'E' || c == 'e') {
+				exp_str += c;
+				c = str[offset++];
+				if (c == '-' || c== '+') { exp_str += c; }
+				while (true) {
+					c = str[offset++];
+					if (c >= '0' && c <= '9')
+						exp_str += c;
+					else if (!isspace(c) && c != ',' && c != ']' && c != '}') {
+						std::cerr << "ERROR: Number: Expected a number for exponent, found '" << c << "'\n";
+						return std::move(HJSON::Make(HJSON::Class::Null));
+					}
+					else
+						break;
+				}
+				val += exp_str;
+			}
+			else if (!isspace(c) && c != ',' && c != ']' && c != '}') {
+				std::cerr << "ERROR: Number: unexpected character '" << c << "'\n";
+				return std::move(HJSON::Make(HJSON::Class::Null));
+			}
+			--offset;
+
+			if (isDouble)
+			{
+				if (isInf) {
+					Number = isNegative ? log(0.0) : -log(0.0);
+				}
+				else {
+					Number = QString::fromStdString(val).toDouble();
+				}
+			}
+			else {
+				Number = QString::fromStdString(val).toInt();
+			}
+			return std::move(Number);
 	    }
 	
 	    HJSON parse_bool( const string &str, size_t &offset ) {

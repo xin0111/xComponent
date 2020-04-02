@@ -337,205 +337,77 @@ namespace xComponent{
 				} while (true);
 			}
 
-			void parser_exp_pos()
-			{
-				take();
-				auto c = read();
-				do
-				{
-					switch (c)
-					{
-					case '0':
-					case '1':
-					case '2':
-					case '3':
-					case '4':
-					case '5':
-					case '6':
-					case '7':
-					case '8':
-					case '9':
-					{
-						exp *= 10;
-						exp += (c - '0');
-						break;
-					}
-					default:
-					{
-						for (int i = 0; i < exp; ++i)
-						{
-							cur_tok_.value.d64 *= 10.0;
-						}
-						exp = 0;
-						cur_tok_.str.len = ptr_ + cur_offset_ - cur_tok_.str.str;
-						return;
-					}
-					}
-					take();
-					c = read();
-				} while (1);
-			}
-
-			void parser_exp_neg()
-			{
-				take();
-				auto c = read();
-				do
-				{
-					switch (c)
-					{
-					case '0':
-					case '1':
-					case '2':
-					case '3':
-					case '4':
-					case '5':
-					case '6':
-					case '7':
-					case '8':
-					case '9':
-					{
-						exp *= 10;
-						exp += (c - '0');
-						break;
-					}
-					default:
-					{
-						for (int i = 0; i < exp; ++i)
-						{
-							cur_tok_.value.d64 *= 0.1;
-						}
-						exp = 0;
-						cur_tok_.str.len = ptr_ + cur_offset_ - cur_tok_.str.str;
-						return;
-					}
-					}
-					take();
-					c = read();
-				} while (1);
-			}
-
-			void parser_exp()
-			{
-				take();
-				auto c = read();
-				do
-				{
-					switch (c)
-					{
-					case '0':
-					case '1':
-					case '2':
-					case '3':
-					case '4':
-					case '5':
-					case '6':
-					case '7':
-					case '8':
-					case '9':
-					{
-						exp *= 10;
-						exp += (c - '0');
-						parser_exp_pos();
-						return;
-					}
-					case '-':
-					{
-						parser_exp_neg();
-						return;
-					}
-					default:
-					{
-						exp = 0;
-						cur_tok_.str.len = ptr_ + cur_offset_ - cur_tok_.str.str;
-						return;
-					}
-					}
-				} while (1);
-			}
-
 			void parser_number()
 			{
-				cur_tok_.str.str = ptr_ + cur_offset_;
-				take();
-				auto c = read();
-				do
-				{
-					switch (c)
-					{
-					case '0':
-					case '1':
-					case '2':
-					case '3':
-					case '4':
-					case '5':
-					case '6':
-					case '7':
-					case '8':
-					case '9':
-					{
-						if (cur_tok_.type == token::t_int)
-						{
-							cur_tok_.value.i64 *= 10;
-							cur_tok_.value.i64 += c - '0';
-						}
-						else if (cur_tok_.type == token::t_uint)
-						{
-							cur_tok_.value.u64 *= 10;
-							cur_tok_.value.u64 += c - '0';
-						}
-						else if (cur_tok_.type == token::t_number)
-						{
-							cur_tok_.value.d64 += decimal * (c - '0');
-							decimal *= 0.1;
-						}
-						break;
-					}
-					case '.':
-					{
-						if (cur_tok_.type == token::t_int)
-						{
-							cur_tok_.type = token::t_number;
-							cur_tok_.value.d64 = (double)cur_tok_.value.i64;
-							decimal_reset();
-						}
-						else if (cur_tok_.type == token::t_uint)
-						{
-							cur_tok_.type = token::t_number;
-							cur_tok_.value.d64 = (double)cur_tok_.value.u64;
-							decimal_reset();
-						}
-						else if (cur_tok_.type == token::t_number)
-						{
-							error("not a valid number!");
-						}
-						break;
-					}
-					case 'e':
-					case 'E':
-					{
-						if (cur_tok_.type == token::t_int)
-						{
-							cur_tok_.type = token::t_number;
-							cur_tok_.value.d64 = (double)cur_tok_.value.i64;
-						}
-						else if (cur_tok_.type == token::t_uint)
-						{
-							cur_tok_.type = token::t_number;
-							cur_tok_.value.d64 = (double)cur_tok_.value.u64;
-						}
-						parser_exp();
-						break;
-					}
-					default:
-					{
-						cur_tok_.str.len = ptr_ + cur_offset_ - cur_tok_.str.str;
-						return;
-					}
-					}
-					take();
+				cur_tok_.str.str = ptr_ + cur_offset_;				
+				std::string val, exp_str;
+				bool isDouble = false;
+				bool isInf = false;
+				char c;
+				while (true) {
+			
 					c = read();
-				} while (1);
+					take();
+					if ((c == '-'))	{
+						val += c;
+					}
+					else if ((c >= '0' && c <= '9'))
+						val += c;
+					else if (c == '.') {
+						val += c;
+						isDouble = true;
+					}
+					else if (c == 'i' || c == 'n' || c == 'f' ||
+						c == 'I' || c == 'N' || c == 'F' ||
+						c == '#')
+					{
+						val += c;
+						isInf = true;
+					}
+					else
+						break;
+				}
+				if (c == 'E' || c == 'e') {			
+					exp_str += c;
+					c = read();
+					take();
+					if (c == '-' || c == '+') 
+					{exp_str += c; }
+					while (true) {							
+						c = read();
+						take();
+						if (c >= '0' && c <= '9')
+							exp_str += c;
+						else
+							break;
+					}
+					val += exp_str;
+				}
+				cur_offset_--;
+				cur_tok_.str.len = ptr_ + cur_offset_ - cur_tok_.str.str;
+	
+				if (isDouble)
+				{
+					cur_tok_.type = token::t_number;
+					cur_tok_.value.d64 = QString::fromStdString(val).toDouble();
+				}
+				else if (isInf)
+				{
+					cur_tok_.type = token::t_number;
+					cur_tok_.value.d64 = cur_tok_.neg ? log(0.0):-log(0.0);
+				}
+				else {
+					if (!cur_tok_.neg)
+					{
+						cur_tok_.type = token::t_uint;
+						cur_tok_.value.u64 = QString::fromStdString(val).toUInt();
+					}
+					else
+					{
+						cur_tok_.type = token::t_int;
+						cur_tok_.value.i64 = QString::fromStdString(val).toInt();
+					}
+				}
 			}
 		public:
 			reader(const char * ptr = nullptr, size_t len = -1)
@@ -1186,8 +1058,6 @@ namespace xComponent{
 				case token::t_int:
 				{
 					val = static_cast<ty>(tok.value.i64);
-					if (tok.neg)
-						val = -val;
 					break;
 				}
 				case token::t_uint:
@@ -1198,8 +1068,6 @@ namespace xComponent{
 				case token::t_number:
 				{
 					val = static_cast<ty>(tok.value.d64);
-					if (tok.neg)
-						val = -val;
 					break;
 				}
 				default:
@@ -1373,8 +1241,6 @@ namespace xComponent{
 				case token::t_int:
 				{
 					val = static_cast<ty>(tok.value.i64);
-					if (tok.neg)
-						val = -val;
 					break;
 				}
 				case token::t_uint:
@@ -1384,10 +1250,7 @@ namespace xComponent{
 				}
 				case token::t_number:
 				{
-					double temp = std::strtold(tok.str.str, nullptr);
-					val = static_cast<ty>(temp);				
-					if (tok.neg)
-						val = -val;
+					val = static_cast<ty>(tok.value.d64);
 					break;
 				}
 				default:
