@@ -539,7 +539,7 @@ namespace xComponent{
 			string val, exp_str;
 			char c;
 			bool isDouble = false;
-			bool isInf = false;
+			bool isInfNan = false;
 			bool isNegative = false;
 			long exp = 0;
 			while (true) {
@@ -554,12 +554,15 @@ namespace xComponent{
 					val += c;
 					isDouble = true;
 				}
-				else if (c == 'i' || c == 'n' || c== 'f' || 
+				else if (c == 'i' || c == 'n' || c == 'f' ||
 					c == 'I' || c == 'N' || c == 'F' ||
-					c == '#')
+					c == '#' ||
+					c == 'q' || c == 'Q' ||
+					c == 'N' || c == 'A' ||
+					c == 'n' || c == 'a')
 				{
 					val += c;
-					isInf = true;
+					isInfNan = true;
 				}
 				else
 					break;
@@ -586,15 +589,20 @@ namespace xComponent{
 				return std::move(HJSON::Make(HJSON::Class::Null));
 			}
 			--offset;
-
-			if (isDouble)
-			{
-				if (isInf) {
+			if (isInfNan) {
+				QString stmp = QString::fromStdString(val);
+				if (stmp.contains("inf", Qt::CaseSensitivity::CaseInsensitive))
+				{
 					Number = isNegative ? log(0.0) : -log(0.0);
 				}
-				else {
-					Number = QString::fromStdString(val).toDouble();
+				else
+				{
+					Number = log(-1.0);
 				}
+			}
+			else if (isDouble)
+			{
+				Number = QString::fromStdString(val).toDouble();				
 			}
 			else {
 				Number = QString::fromStdString(val).toInt();

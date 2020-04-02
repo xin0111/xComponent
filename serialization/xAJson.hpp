@@ -342,7 +342,7 @@ namespace xComponent{
 				cur_tok_.str.str = ptr_ + cur_offset_;				
 				std::string val, exp_str;
 				bool isDouble = false;
-				bool isInf = false;
+				bool isInfNan = false;
 				char c;
 				while (true) {
 			
@@ -359,10 +359,13 @@ namespace xComponent{
 					}
 					else if (c == 'i' || c == 'n' || c == 'f' ||
 						c == 'I' || c == 'N' || c == 'F' ||
-						c == '#')
+						c == '#' ||
+						c == 'q' || c == 'Q' ||
+						c == 'N' || c == 'A' ||
+						c == 'n' || c == 'a')
 					{
 						val += c;
-						isInf = true;
+						isInfNan = true;
 					}
 					else
 						break;
@@ -386,15 +389,23 @@ namespace xComponent{
 				cur_offset_--;
 				cur_tok_.str.len = ptr_ + cur_offset_ - cur_tok_.str.str;
 	
-				if (isDouble)
+				if (isInfNan)
+				{
+					cur_tok_.type = token::t_number;
+					QString stmp = QString::fromStdString(val);
+					if (stmp.contains("inf", Qt::CaseSensitivity::CaseInsensitive))
+					{
+						cur_tok_.value.d64 = cur_tok_.neg ? log(0.0) : -log(0.0);
+					}
+					else
+					{
+						cur_tok_.value.d64 = log(-1.0);
+					}
+				}
+				else if (isDouble)
 				{
 					cur_tok_.type = token::t_number;
 					cur_tok_.value.d64 = QString::fromStdString(val).toDouble();
-				}
-				else if (isInf)
-				{
-					cur_tok_.type = token::t_number;
-					cur_tok_.value.d64 = cur_tok_.neg ? log(0.0):-log(0.0);
 				}
 				else {
 					if (!cur_tok_.neg)
