@@ -25,7 +25,7 @@ void xJsonViewGui::setSearchFilter(const QString& str)
 	ui.jsonView->selectionModel()->clear();
 	ui.jsonView->setSearchFilter(str);
 }
-
+#include <QDebug>
 void xJsonViewGui::setExpandCollapse()
 {
 	QPushButton *btn = qobject_cast<QPushButton*>(sender());

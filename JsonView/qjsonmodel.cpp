@@ -63,7 +63,7 @@ QString QJsonTreeItem::key() const
 
 QString QJsonTreeItem::value() const
 {
-    return mValue;
+	return mValue;
 }
 
 QJsonValue::Type QJsonTreeItem::type() const
@@ -291,6 +291,13 @@ QJsonDocument QJsonModel::json() const
     }
 
     return doc;
+}
+
+QString QJsonModel::sjson() const
+{
+	QJsonDocument dom = json();
+	//Ñ¹Ëõ
+	return QString::fromStdString(dom.toJson(QJsonDocument::Compact).data());
 }
 
 QJsonValue  QJsonModel::genJson(QJsonTreeItem * item) const

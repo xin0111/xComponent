@@ -61,7 +61,7 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const Q_DECL_OVERRIDE;
     Qt::ItemFlags flags(const QModelIndex &index) const Q_DECL_OVERRIDE;
     QJsonDocument json() const;
-
+	QString sjson() const;
 private:
     QJsonValue genJson(QJsonTreeItem *) const;
 
