@@ -1,10 +1,10 @@
 #ifndef XJSONVIEWGUI_H
 #define XJSONVIEWGUI_H
 
-#include <QWidget>
+#include <QDialog>
 #include "ui_xjsonviewgui.h"
 
-class xJsonViewGui : public QWidget
+class xJsonViewGui : public QDialog
 {
 	Q_OBJECT
 

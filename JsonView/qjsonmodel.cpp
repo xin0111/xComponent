@@ -2,6 +2,7 @@
 #include <QFile>
 #include <QDebug>
 #include <QFont>
+#include "QHeaderView"
 
 QJsonTreeItem::QJsonTreeItem(QJsonTreeItem *parent)
 {
@@ -393,6 +394,10 @@ QJsonView::QJsonView(QWidget* p)
 	this->mSearchFilter->setDynamicSortFilter(false);
 	
 	this->setModel(this->mSearchFilter);
+
+	mbEpandState = true;
+	connect(this, SIGNAL(expanded(const QModelIndex &)
+		), this, SLOT(onExpandEx(const QModelIndex &)));
 }
 
 
@@ -406,3 +411,20 @@ void QJsonView::setSearchFilter(const QString&s)
 {
 	this->mSearchFilter->setFilterFixedString(s);
 }
+
+void QJsonView::expandAllEx()
+{
+	mbEpandState = false;
+	__super::expandAll();
+	this->resizeColumnToContents(0);
+	mbEpandState = true;
+}
+
+void QJsonView::onExpandEx(const QModelIndex &index)
+{
+	if (mbEpandState){
+		this->resizeColumnToContents(0);
+	}
+}
+
+

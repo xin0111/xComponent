@@ -78,10 +78,15 @@ public:
 	~QJsonView();
 	QJsonModel* getJsonModel(){ return mJsonModel; }
 	void setSearchFilter(const QString&);
+
+	void expandAllEx();
+protected slots:
+void onExpandEx(const QModelIndex &index);
 private:
 	RuleDisplayFilter* mDisplayFilter;
 	QSortFilterProxyModel* mSearchFilter;
 	QJsonModel * mJsonModel;
+	bool mbEpandState;
 };
 
 #endif // QJSONMODEL_H

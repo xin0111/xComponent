@@ -1,13 +1,16 @@
 #include "xjsonviewgui.h"
 
 xJsonViewGui::xJsonViewGui(QWidget *parent)
-	: QWidget(parent)
+: QDialog(parent)
 {
 	ui.setupUi(this);
 	QObject::connect(ui.lineEdit_search, SIGNAL(textChanged(QString)), this,
 		SLOT(setSearchFilter(QString)));
 	QObject::connect(ui.pushButton_display, SIGNAL(clicked()), this,
 		SLOT(setExpandCollapse()));
+
+	connect(ui.buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+	connect(ui.buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
 xJsonViewGui::~xJsonViewGui()
@@ -34,7 +37,7 @@ void xJsonViewGui::setExpandCollapse()
 		if (btn->text() == "ExpandAll")
 		{
 			btn->setText("CollapseAll");
-			ui.jsonView->expandAll();
+			ui.jsonView->expandAllEx();
 		}
 		else
 		{

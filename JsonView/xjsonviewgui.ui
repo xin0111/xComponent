@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>392</width>
-    <height>355</height>
+    <width>415</width>
+    <height>494</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>JsonView</string>
+   <string>View</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
