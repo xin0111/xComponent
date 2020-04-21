@@ -321,7 +321,11 @@ QJsonValue  QJsonModel::genJson(QJsonTreeItem * item) const
             arr.append(genJson(ch));
         }
         return arr;
-    } else {
+    }else if (QJsonValue::Double == type) {
+		QJsonValue va(item->value().toDouble());
+        return va;
+	} 
+	else {
         QJsonValue va(item->value());
         return va;
     }

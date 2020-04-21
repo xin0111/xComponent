@@ -38,16 +38,18 @@ void xQueryJsonGui::showJsonItem(QListWidgetItem *pItem)
 	xJsonViewGui pView;
 	QJsonModel* pJson = pView.getJsonModel();
 	pJson->loadJson(pItem->text());
-	pView.exec();
-
-	QString strJson = pJson->sjson();
-	if (strJson != pItem->text())
-	{
-		auto kk = pItem->data(Qt::UserRole + 1);
-		pugi::xml_attribute attr = pItem->data(Qt::UserRole + 1).value<pugi::xml_attribute>();
 	
-		attr.set_value(strJson.toStdString().c_str());
-		pItem->setText(strJson);
+	if(pView.exec() == QDialog::Accepted)
+	{
+		QString strJson = pJson->sjson();
+		if (strJson != pItem->text())
+		{
+			auto kk = pItem->data(Qt::UserRole + 1);
+			pugi::xml_attribute attr = pItem->data(Qt::UserRole + 1).value<pugi::xml_attribute>();
+		
+			attr.set_value(strJson.toStdString().c_str());
+			pItem->setText(strJson);
+		}
 	}
 }
 
