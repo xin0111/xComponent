@@ -280,11 +280,11 @@ namespace xComponent{
 					switch (c)
 					{
 					case 0:
-					case '\n':
-					{
-						error("not a valid quote string!");
-						break;
-					}
+					// case '\n':
+					// {
+						// error("not a valid quote string!");
+						// break;
+					// }
 					case '\\':
 					{
 						take();
