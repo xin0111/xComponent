@@ -5,6 +5,35 @@
 
 Q_DECLARE_METATYPE(pugi::xml_attribute)
 
+#define  ATTR_ROLE Qt::UserRole + 1
+#define  TEXT_ROLE Qt::UserRole + 2
+
+class ItemWidget :public QWidget
+{
+public:
+	ItemWidget(int nID, const QString& sText, QWidget* parent = Q_NULLPTR);
+	~ItemWidget(){}
+	void updateText(const QString& sText);
+private:
+	QLabel* m_pTextLabel;
+};
+
+ItemWidget::ItemWidget(int nID, const QString& sText, QWidget* parent)
+	:QWidget(parent)
+{
+	QLabel* pIndexLabel = new QLabel(QString::number(nID), this);
+	m_pTextLabel = new QLabel(sText, this);
+	QHBoxLayout* pLayout = new QHBoxLayout(this);
+	pLayout->addWidget(pIndexLabel);
+	pLayout->addWidget(m_pTextLabel);
+	this->setLayout(pLayout);
+}
+
+void ItemWidget::updateText(const QString& sText)
+{
+	m_pTextLabel->setText(sText);
+}
+//////////////////////////////////////////////////////////////////////////
 xQueryJsonGui::xQueryJsonGui(QWidget *parent)
 	: QWidget(parent)
 {
@@ -37,18 +66,19 @@ void xQueryJsonGui::showJsonItem(QListWidgetItem *pItem)
 {
 	xJsonViewGui pView;
 	QJsonModel* pJson = pView.getJsonModel();
-	pJson->loadJson(pItem->text());
+	pJson->loadJson(pItem->data(TEXT_ROLE).toString());
 	
 	if(pView.exec() == QDialog::Accepted)
 	{
 		QString strJson = pJson->sjson();
 		if (strJson != pItem->text())
 		{
-			auto kk = pItem->data(Qt::UserRole + 1);
-			pugi::xml_attribute attr = pItem->data(Qt::UserRole + 1).value<pugi::xml_attribute>();
+			auto kk = pItem->data(ATTR_ROLE);
+			pugi::xml_attribute attr = pItem->data(ATTR_ROLE).value<pugi::xml_attribute>();
 		
 			attr.set_value(strJson.toStdString().c_str());
-			pItem->setText(strJson);
+			pItem->setData(TEXT_ROLE, strJson);
+			dynamic_cast<ItemWidget*>(pItem->listWidget()->itemWidget(pItem))->updateText(strJson);
 		}
 	}
 }
@@ -80,14 +110,17 @@ void xQueryJsonGui::addJsonItems(const pugi::xml_document& doc, const QString &s
 	for (size_t i = 0; i < ns.size(); i++)
 	{
 		const std::string& tx = ns[i].attribute().value();
-
 		
 		QString str = QString::fromStdString(tx);
 		
-		QListWidgetItem*pItem = new QListWidgetItem(str, pListWgt);
+		QListWidgetItem*pItem = new QListWidgetItem(pListWgt);
+		pItem->setSizeHint(QSize(0, 35));
+		pListWgt->setItemWidget(pItem, new ItemWidget(i+1,str, pListWgt));
+
 		QVariant var;
 		var.setValue(((ns[i].attribute())));
-		pItem->setData(Qt::UserRole + 1, var);
+		pItem->setData(ATTR_ROLE, var);
+		pItem->setData(TEXT_ROLE, str);
 	}
 
 	ui->tabWidget->addTab(pListWgt, QString());
