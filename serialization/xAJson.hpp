@@ -285,6 +285,11 @@ namespace xComponent{
 						// error("not a valid quote string!");
 						// break;
 					// }
+					case '{':
+					case '}':
+					{//{string}
+						break;
+					}
 					case '\\':
 					{
 						take();
