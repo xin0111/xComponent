@@ -2,7 +2,8 @@
 #include <QFile>
 #include <QDebug>
 #include <QFont>
-#include "QHeaderView"
+#include <QHeaderView>
+#include <QKeyEvent>
 
 QJsonTreeItem::QJsonTreeItem(QJsonTreeItem *parent)
 {
@@ -331,6 +332,20 @@ QJsonValue  QJsonModel::genJson(QJsonTreeItem * item) const
     }
 
 }
+void QJsonModel::removeItem(QModelIndex& index)
+{
+	if (!index.isValid()) return;
+	QJsonTreeItem* pItem = static_cast<QJsonTreeItem*>(index.internalPointer());
+	if (pItem == NULL) return;
+	QJsonTreeItem* pItemParent = pItem->parent();
+	if (pItemParent)
+	{
+		beginRemoveRows(index.parent(), index.row(), index.row());
+		pItemParent->mChilds.removeOne(pItem);
+		endRemoveRows();
+	}
+}
+
 ////////////////////////////////////////////////////////////////////////////
 // filter for searches
 class RuleSearchFilter : public QSortFilterProxyModel
@@ -426,9 +441,25 @@ void QJsonView::expandAllEx()
 
 void QJsonView::onExpandEx(const QModelIndex &index)
 {
+	Q_UNUSED(index);
 	if (mbEpandState){
 		this->resizeColumnToContents(0);
 	}
 }
 
+void QJsonView::keyPressEvent(QKeyEvent *event)
+{
+	switch (event->key())
+	{
+	case Qt::Key_Delete:
+	{
+		QModelIndex index = this->currentIndex();
+		this->selectionModel()->reset();
+		mJsonModel->removeItem(mSearchFilter->mapToSource(index));
+	}break;
+	default:
+		break;
+	}
+	QTreeView::keyPressEvent(event);
+}
 

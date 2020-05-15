@@ -39,10 +39,10 @@ private:
     QString mKey;
     QString mValue;
     QJsonValue::Type mType;
-    QList<QJsonTreeItem*> mChilds;
     QJsonTreeItem * mParent;
-
-
+protected:
+	QList<QJsonTreeItem*> mChilds;
+	friend QJsonModel;
 };
 //---------------------------------------------------
 class QJsonModel : public QAbstractItemModel
@@ -62,10 +62,11 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const Q_DECL_OVERRIDE;
     QJsonDocument json() const;
 	QString sjson() const;
+	void removeItem(QModelIndex& index);
 private:
     QJsonValue genJson(QJsonTreeItem *) const;
 
-    QJsonTreeItem * mRootItem;
+	QJsonTreeItem * mRootItem;
     QStringList mHeaders;
 };
 //---------------------------------------------------
@@ -82,6 +83,8 @@ public:
 	void expandAllEx();
 protected slots:
 void onExpandEx(const QModelIndex &index);
+protected:
+void keyPressEvent(QKeyEvent *event);
 private:
 	RuleDisplayFilter* mDisplayFilter;
 	QSortFilterProxyModel* mSearchFilter;
