@@ -348,8 +348,9 @@ namespace xComponent{
 	                }
 					case Class::String:	{
 								QString stmp =	QString::fromStdString(*Internal.String);
-								if (stmp.startsWith("{") && stmp.endsWith("}"))
-								{//json string
+								QRegExp rx("^(\\s*)\\{(\\s*)\".*\\}(\\s*)$");
+								if (rx.exactMatch(stmp))
+								{//json string ?
 									return (*Internal.String);
 								}
 						  return "\"" + (*Internal.String) + "\"";
