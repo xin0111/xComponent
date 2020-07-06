@@ -27,6 +27,8 @@ void xJsonViewGui::setSearchFilter(const QString& str)
 {
 	ui.jsonView->selectionModel()->clear();
 	ui.jsonView->setSearchFilter(str);
+	ui.pushButton_display->setText("ExpandAll");
+	ui.jsonView->resizeColumnToContents(0);
 }
 #include <QDebug>
 void xJsonViewGui::setExpandCollapse()
@@ -45,4 +47,10 @@ void xJsonViewGui::setExpandCollapse()
 			ui.jsonView->collapseAll();
 		}
 	}
+}
+
+void xJsonViewGui::on_lineEdit_search_returnPressed()
+{
+	ui.pushButton_display->setFocus();
+	setExpandCollapse();
 }

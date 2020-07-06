@@ -15,6 +15,7 @@ public:
 protected slots:
 	void setSearchFilter(const QString& str);
 	void setExpandCollapse();
+	void on_lineEdit_search_returnPressed();
 private:
 	Ui::xJsonViewGui ui;
 };
